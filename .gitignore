@@ -1,1 +1,6 @@
-*.venv
+# .gitignore - tells Git what NOT to track
+.venv/
+.env
+__pycache__/
+*.pyc
+.DS_Store
