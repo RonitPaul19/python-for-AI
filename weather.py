@@ -2,6 +2,7 @@ import requests
 from datetime import datetime, timedelta
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
 # Get current location from IP
 location_data = requests.get("https://ipinfo.io/json").json()
@@ -35,11 +36,13 @@ response = requests.get(url)
 data = response.json()
 
 # Create DataFrame
-df = pd.DataFrame({
-    "date": data["daily"]["time"],
-    "max_temp": data["daily"]["temperature_2m_max"],
-    "min_temp": data["daily"]["temperature_2m_min"]
-})
+df = pd.DataFrame(
+    {
+        "date": data["daily"]["time"],
+        "max_temp": data["daily"]["temperature_2m_max"],
+        "min_temp": data["daily"]["temperature_2m_min"],
+    }
+)
 
 df["date"] = pd.to_datetime(df["date"])
 df["avg_temp"] = (df["max_temp"] + df["min_temp"]) / 2
@@ -50,26 +53,12 @@ print(df)
 # Plot
 plt.figure(figsize=(10, 6))
 
-plt.plot(
-    df["date"],
-    df["max_temp"],
-    marker="o",
-    label="Max Temperature"
-)
+plt.plot(df["date"], df["max_temp"], marker="o", label="Max Temperature")
+
+plt.plot(df["date"], df["min_temp"], marker="o", label="Min Temperature")
 
 plt.plot(
-    df["date"],
-    df["min_temp"],
-    marker="o",
-    label="Min Temperature"
-)
-
-plt.plot(
-    df["date"],
-    df["avg_temp"],
-    marker="o",
-    linestyle="--",
-    label="Average Temperature"
+    df["date"], df["avg_temp"], marker="o", linestyle="--", label="Average Temperature"
 )
 
 plt.xlabel("Date")
@@ -89,3 +78,11 @@ plt.savefig(filename, dpi=300)
 print(f"\nChart saved as: {filename}")
 
 plt.show()
+
+# create a data folder if it does not exists
+if not os.path.exists("data"):
+    os.makedirs("data")
+
+# Save to csv
+df.to_csv(f"data/{city}_weather.csv", index=False)
+print(f"Data saved to data/{city}_weather.csv")
